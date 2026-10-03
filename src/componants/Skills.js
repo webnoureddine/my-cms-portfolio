@@ -3,10 +3,9 @@ import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
 import { C } from '../theme';
 import { t } from '../i18n';
-
+import { fadeUp, sideReveal } from '../animations';
 
 const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
 
 // Fallback data if Firestore skills collection is empty
 const defaultCategories = [
@@ -143,7 +142,7 @@ function Skills({ language, skills: dbSkills }) {
             const catTitle = t(language, cat.titleEn, cat.titleFr ?? cat.titleEn, cat.titleAr ?? cat.titleEn);
             const style = getCategoryStyle(cat.titleEn, ci);
             return (
-              <motion.div key={ci} variants={fadeUp} whileHover={{ borderColor: style.color, y: -2 }}
+              <motion.div key={ci} variants={sideReveal(ci)} whileHover={{ borderColor: style.color, y: -2 }}
                 style={{
                   flex: '1 1 260px', maxWidth: '360px', padding: '1.4rem 1.5rem',
                   background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: '10px',

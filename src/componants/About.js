@@ -4,10 +4,7 @@ import { useEffect } from 'react';
 import profilePic from '../me.jpg';
 import { C } from '../theme';
 import { t } from '../i18n';
-
-
-const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+import { stagger, fadeUp, slideInLeft, slideInRight } from '../animations';
 
 // Default capabilities if none exist in Firestore yet
 const defaultCapabilities = [
@@ -74,8 +71,8 @@ function About({ language, settings }) {
         {/* 2-col layout */}
         <div className="grid lg:grid-cols-2 gap-16" style={{ marginBottom: '5rem' }}>
 
-          {/* Photo + stats */}
-          <motion.div variants={fadeUp}>
+          {/* Photo + stats — slides in from the left */}
+          <motion.div variants={slideInLeft}>
             <div style={{ position: 'relative', marginBottom: '2.5rem' }}>
               <div style={{ width: '100%', maxWidth: 380, height: 460, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${C.border}`, position: 'relative', background: C.bg }}>
                 <img src={photoUrl ?? profilePic} alt={displayName}
@@ -105,8 +102,8 @@ function About({ language, settings }) {
             </div>
           </motion.div>
 
-          {/* Bio */}
-          <motion.div variants={fadeUp} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2rem' }}>
+          {/* Bio — slides in from the right */}
+          <motion.div variants={slideInRight} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2rem' }}>
             <p style={{ color: C.textSub, fontSize: '1.05rem', lineHeight: 2.0, margin: 0 }}>
               {t(language, bio1En, bio1Fr, bio1Ar)}
             </p>
@@ -136,7 +133,7 @@ function About({ language, settings }) {
           <div style={{ display: 'grid', gap: '1px', background: C.border, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${C.border}` }}
             className="grid md:grid-cols-2">
             {capabilities.map((cap, i) => (
-              <motion.div key={i} whileHover={{ background: C.bgCard2 }}
+              <motion.div key={i} variants={i % 2 === 0 ? slideInLeft : slideInRight} whileHover={{ background: C.bgCard2 }}
                 style={{ padding: '2rem', background: C.bg, display: 'flex', gap: '1.25rem', transition: 'background 0.2s' }}>
                 <span style={{ color: C.accent, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', flexShrink: 0, marginTop: '0.2rem' }}>{cap.num}</span>
                 <div>

@@ -4,16 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { C } from '../theme';
 import { t } from '../i18n';
-
-
-const stagger = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-};
+import { stagger, fadeUp, slideInLeft, slideInRight } from '../animations';
 
 const inputStyle = {
   width: '100%',
@@ -191,8 +182,8 @@ function Contact({ language, settings }) {
 
         <div className="grid lg:grid-cols-2 gap-16">
 
-          {/* Left: Info */}
-          <motion.div variants={fadeUp}>
+          {/* Left: Info — slides in from the left */}
+          <motion.div variants={slideInLeft}>
 
             {/* Contact details */}
             <div style={{ marginBottom: '3rem' }}>
@@ -254,8 +245,8 @@ function Contact({ language, settings }) {
             </div>
           </motion.div>
 
-          {/* Right: Form */}
-          <motion.div variants={fadeUp}>
+          {/* Right: Form — slides in from the right */}
+          <motion.div variants={slideInRight}>
             <div style={{
               background: C.bgCard,
               border: `1px solid ${C.border}`,

@@ -172,6 +172,64 @@ function PdfUploader({ value, onChange, pathPrefix, label: lbl }) {
   );
 }
 
+// ── Video uploader (project demo clips) — same storage bucket, video files ──
+const MAX_VIDEO_MB = 50;
+
+function VideoUploader({ value, onChange, pathPrefix, label: lbl }) {
+  const [uploading, setUploading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+      setErr(`File is too large — keep demo clips under ${MAX_VIDEO_MB}MB (trim or compress it first).`);
+      e.target.value = '';
+      return;
+    }
+    setUploading(true);
+    setErr('');
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${pathPrefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: false, contentType: file.type || 'video/mp4' });
+      if (error) throw error;
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+      onChange(data.publicUrl);
+    } catch (error) {
+      setErr(error.message ?? 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div style={{ marginBottom: '1.1rem' }}>
+      <label style={label}>{lbl}</label>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        {value && !value.includes('youtube') && !value.includes('youtu.be') && (
+          <video src={value} style={{ width: 96, height: 56, borderRadius: 6, objectFit: 'cover', border: `1px solid ${C.border}` }} muted />
+        )}
+        <input type="file" accept="video/*" onChange={handleFile} disabled={uploading}
+          style={{ color: C.textSub, fontSize: '0.78rem' }} />
+        {uploading && <span style={{ color: C.accent, fontSize: '0.78rem' }}>Uploading…</span>}
+        {value && (
+          <button type="button" onClick={() => onChange('')} style={{ ...btn, padding: '0.35rem 0.8rem', fontSize: '0.72rem', background: 'transparent', border: `1px solid ${C.border}`, color: C.textMuted }}>
+            Remove
+          </button>
+        )}
+      </div>
+      {err && <p style={{ color: C.danger, fontSize: '0.75rem', marginTop: '0.4rem' }}>{err}</p>}
+      <input type="text" value={value ?? ''} onChange={(e) => onChange(e.target.value)}
+        placeholder="or paste an mp4 / YouTube embed URL"
+        style={{ ...inp, marginTop: '0.5rem', fontSize: '0.78rem' }} />
+      <p style={{ color: C.textMuted, fontSize: '0.72rem', marginTop: '0.4rem' }}>
+        Upload a clip (max {MAX_VIDEO_MB}MB) or paste a URL — either fills the same field.
+      </p>
+    </div>
+  );
+}
+
 // ============================================================================
 // SETTINGS TAB
 // ============================================================================
@@ -299,12 +357,13 @@ function ProjectForm({ initial, onSave, onCancel }) {
         <Field form={form} setForm={setForm} label="Category (web/backend/automation/desktop)" field="category" />
         <Field form={form} setForm={setForm} label="GitHub URL" field="github" />
         <Field form={form} setForm={setForm} label="Live URL" field="live_url" />
-        <Field form={form} setForm={setForm} label="Video URL (mp4 or YouTube embed)" field="video_url" />
         <Field form={form} setForm={setForm} label="Index label (e.g. 01)" field="index_label" />
         <Field form={form} setForm={setForm} label="Sort Order (number)" field="sort_order" />
       </div>
 
       <ImageUploader value={form.thumbnail} onChange={(v) => setForm((f) => ({ ...f, thumbnail: v }))} pathPrefix="projects" label="Card Thumbnail" />
+
+      <VideoUploader value={form.video_url} onChange={(v) => setForm((f) => ({ ...f, video_url: v }))} pathPrefix="projects" label="Demo video" />
 
       <div style={{ marginBottom: '1.1rem' }}>
         <label style={label}>Screenshots (shown in the project modal carousel)</label>

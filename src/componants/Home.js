@@ -6,6 +6,7 @@ import profilePic from '../me.jpg';
 import { C } from '../theme';
 import { t } from '../i18n';
 import workflowDiagram from '../lifesoft.png';
+import { slideInRight } from '../animations';
 
 // Self-contained inline SVG icons — no external package required (no react-icons install needed)
 const IconReact = ({ size = 16 }) => (
@@ -229,8 +230,8 @@ export default function Home({ language, settings }) {
             </motion.div>
           </div>
 
-          {/* RIGHT — photo */}
-          <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          {/* RIGHT — photo (slides in from the right as it scrolls into view) */}
+          <motion.div variants={slideInRight} style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', top: -12, left: -12, width: 32, height: 32, borderTop: `2px solid ${C.accent}`, borderLeft: `2px solid ${C.accent}`, borderRadius: '2px 0 0 0' }} />
               <div style={{ position: 'absolute', bottom: -12, right: -12, width: 32, height: 32, borderBottom: `2px solid ${C.accent}`, borderRight: `2px solid ${C.accent}`, borderRadius: '0 0 2px 0' }} />

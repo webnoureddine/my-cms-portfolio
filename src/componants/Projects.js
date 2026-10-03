@@ -330,8 +330,9 @@ function Projects({ language, projects: rawProjects }) {
             </div>
           </motion.div>
 
-          {/* Project grid */}
-          <div style={{ display: 'grid', gap: '1px', background: C.border, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${C.border}` }}
+          {/* Project grid — real gaps + individually-styled cards so each
+              project reads as its own distinct box instead of a shared table */}
+          <div style={{ display: 'grid', gap: '1.75rem' }}
             className="grid md:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
               {filtered.map((project, i) => {
@@ -341,16 +342,40 @@ function Projects({ language, projects: rawProjects }) {
                   ? 'image'
                   : null;
 
+                // Alternate entrance direction by column (3-col grid on desktop):
+                // left column slides from the left, right column from the right,
+                // middle column simply rises — gives the grid a bit of life
+                // both on first scroll-in and when the filter changes.
+                const col = i % 3;
+                const fromX = col === 0 ? -40 : col === 2 ? 40 : 0;
+
                 return (
                   <motion.div
                     key={project._key}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 16, x: fromX }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ background: C.bgCard2 }}
-                    style={{ background: C.bg, transition: 'background 0.25s', display: 'flex', flexDirection: 'column' }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{
+                      y: -8,
+                      borderColor: C.borderAcc,
+                      boxShadow: `0 24px 48px -12px rgba(0,0,0,0.55), 0 0 0 1px ${C.borderAcc}, 0 0 42px 6px ${C.accentDim}`,
+                    }}
+                    style={{
+                      background: C.bgCard2,
+                      border: `1px solid ${C.border}`,
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxShadow: '0 8px 24px -8px rgba(0,0,0,0.4)',
+                      transition: 'border-color 0.3s, box-shadow 0.3s',
+                      position: 'relative',
+                    }}
                   >
+                    {/* Thin accent line along the top — echoes the Skills/About cards */}
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`, opacity: 0.7 }} />
+
                     {/* Card media — thumbnail or muted autoplay video */}
                   {cardMedia === 'video' && (
                     <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: '#000', flexShrink: 0 }}>
