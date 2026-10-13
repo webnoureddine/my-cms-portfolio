@@ -63,6 +63,14 @@ function Contact({ language, settings }) {
       link: settings?.email ? `mailto:${settings.email}` : '#',
     },
     {
+      icon: EmailIcon,
+      labelEn: 'phone',
+      labelFr: 'phone',
+      labelAr: 'الهاتف',
+      value: settings?.phone || '0665818298',
+      link: settings?.phone ? `mailto:${settings.email}` : '#',
+    },
+    {
       icon: LocationIcon,
       labelEn: 'Location',
       labelFr: 'Localisation',
