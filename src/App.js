@@ -7,6 +7,7 @@ import About     from './componants/About';
 import Skills    from './componants/Skills';
 import Projects  from './componants/Projects';
 import Contact   from './componants/Contact';
+import Marquee   from './componants/Marquee';
 import AdminPage from './componants/AdminPage';
 
 import { usePortfolioData } from './componants/usePortfolioData';
@@ -25,7 +26,7 @@ function LoadingScreen() {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${C.accentDim}`, borderTopColor: C.accent, animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${C.ice}`, borderTopColor: C.accent, animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
         <p style={{ color: C.textMuted, fontSize: '0.85rem', letterSpacing: '0.08em' }}>Loading portfolio…</p>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -68,7 +69,7 @@ function PublicSite() {
     document.documentElement.lang = language;
   }, [language]);
 
-  const { settings, projects, skills, loading, error } = usePortfolioData();
+  const { settings, projects, skills, reviewStats, loading, error, refetchReviewStats } = usePortfolioData();
   const location = useLocation();
   const loggedRef = useRef(false);
 
@@ -90,15 +91,19 @@ function PublicSite() {
     return <ConfigErrorScreen message={error} />;
   }
 
-  const rtl = isRTL(language);
-
   return (
-    <div dir={rtl ? 'rtl' : 'ltr'} style={{ fontFamily: rtl ? "'Cairo', 'DM Sans', sans-serif" : "'DM Sans', sans-serif" }}>
-      <Navbar language={language} toggleLanguage={toggleLanguage} settings={settings} />
-      <Home     language={language} settings={settings} />
-      <About    language={language} settings={settings} />
-      <Skills   language={language} skills={skills} />
-      <Projects language={language} projects={projects} />
+    <div dir={isRTL(language) ? 'rtl' : 'ltr'}>
+      <Navbar   language={language} toggleLanguage={toggleLanguage} settings={settings} />
+      <main>
+        <Home     language={language} settings={settings} />
+        <Marquee  skills={skills} />
+        <About    language={language} settings={settings} />
+        <Skills   language={language} skills={skills} />
+        <Projects language={language} projects={projects}
+          reviewStats={reviewStats}
+          reviewsAutoApprove={!!settings?.reviewsAutoApprove}
+          onReviewSubmitted={refetchReviewStats} />
+      </main>
       <Contact  language={language} settings={settings} />
     </div>
   );

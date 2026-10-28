@@ -1,47 +1,55 @@
-// Shared design tokens — palette derived from the requested color board:
-// deep navy blues, a warm terracotta/orange accent, and a soft sky-blue for variety.
-// Change values here once and the whole site (and admin panel) updates together.
+// Design tokens — "motel film" palette — warm butter light, deep motel green, thermos orange.
+// Taken from a 70s motel film still. The same values are mirrored as CSS variables in
+// index.css (used by the public site); this JS object is used by the admin
+// panel and anywhere inline styles still need a color.
 
 export const C = {
-  bg:          '#0D1B2E',
-  bgCard:      '#132539',
-  bgCard2:     '#1A3049',
-  bgPanel:     '#132539',
+  // Surfaces
+  bg:          '#F6EBCF',   // butter cream — page background
+  bgAlt:       '#EBDCB2',   // afternoon yellow — alternating sections
+  bgCard:      '#FBF5E4',
+  bgCard2:     '#F1E5C4',
+  bgPanel:     '#FBF5E4',
 
-  border:      'rgba(255,255,255,0.07)',
-  borderHov:   'rgba(255,255,255,0.15)',
-  borderAcc:   'rgba(224,146,90,0.35)',
-  borderFocus: 'rgba(224,146,90,0.55)',
+  // Lines
+  border:      '#DCCBA0',
+  borderHov:   '#C7B184',
+  borderAcc:   'rgba(47,90,69,0.35)',
+  borderFocus: '#2F5A45',
 
-  text:        '#F2F4F8',
-  textMuted:   '#7C8CA6',
-  textSub:     '#B7C2D4',
+  // Text
+  text:        '#2A281F',   // espresso ink
+  textSub:     '#4B4636',
+  textMuted:   '#7D7258',
 
-  // Primary accent — warm terracotta/orange (from the building facade in the palette)
-  accent:      '#E0925A',
-  accentDim:   'rgba(224,146,90,0.14)',
-  accentSoft:  'rgba(224,146,90,0.12)',
+  // Accent — motel wall green
+  accent:      '#1F4A38',
+  accentHover: '#244736',
+  accentDim:   'rgba(47,90,69,0.10)',
+  accentSoft:  '#DCE3C6',
+  onAccent:    '#F4E9CC',
 
-  // Dark navy used as text/icon color on top of the orange accent (replaces old C.onAccent)
-  onAccent:    '#0D1B2E',
+  // Supporting warm tones (butter, curtain tan, thermos orange)
+  ice:         '#E9CF8B',
+  frost:       '#C9A675',
+  blue:        '#C8662E',
+  blueDim:     'rgba(200,102,46,0.12)',
 
-  // Secondary sky-blue accent — used for tech badges / variety accents
-  blue:        '#4A99C8',
-  blueDim:     'rgba(74,153,200,0.14)',
-  blueDeep:    '#1E64A1',
+  // Deep band (contact / footer)
+  deep:        '#1F3D30',
+  deepCard:    '#28493A',
+  deepBorder:  'rgba(244,233,204,0.16)',
+  deepText:    '#F4E9CC',
+  deepMuted:   '#C2B993',
 
-  // Peach / gray from the palette — used sparingly for soft highlights
-  peach:       '#E9B166',
-  peachDim:    'rgba(233,177,102,0.14)',
-  gray:        '#CFCEC5',
+  // Status
+  star:        '#D9692B',
+  success:     '#4F7A3A',
+  successDim:  'rgba(79,122,58,0.12)',
+  danger:      '#A63D2A',
+  dangerDim:   'rgba(178,69,60,0.08)',
 
-  success:     '#6FC79B',
-  successDim:  'rgba(111,199,155,0.12)',
-
-  danger:      '#E08A83',
-  dangerDim:   'rgba(224,138,131,0.12)',
-
-  track:       'rgba(255,255,255,0.07)',
+  track:       '#E3D4AA',
 };
 
 export default C;

@@ -16,6 +16,8 @@ function mapSettings(row) {
     displayName: row.display_name,
     location: row.location,
     email: row.email,
+    phone: row.phone,
+    reviewsAutoApprove: row.reviews_auto_approve ?? false,
     linkedin: row.linkedin,
     github: row.github,
     available: row.available,
@@ -59,6 +61,9 @@ function mapProject(row) {
     videoUrl: row.video_url,
     thumbnail: row.thumbnail,
     images: row.images ?? [],
+    purpose: row.purpose ?? null,
+    purposeDetail: row.purpose_detail ?? '',
+    year: row.project_year ?? '',
   };
 }
 
@@ -81,6 +86,24 @@ export function usePortfolioData() {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewStats, setReviewStats] = useState({});
+
+  // Average rating + count per project, from APPROVED reviews only (RLS).
+  // Fails silently if migration_4 hasn't been run yet, so the site still loads.
+  const fetchReviewStats = useCallback(async () => {
+    if (!isSupabaseConfigured) return;
+    const { data, error: err } = await supabase.from('project_reviews').select('project_id, rating');
+    if (err) return;
+    const acc = {};
+    (data ?? []).forEach(({ project_id, rating }) => {
+      acc[project_id] = acc[project_id] || { sum: 0, count: 0 };
+      acc[project_id].sum += rating;
+      acc[project_id].count += 1;
+    });
+    const out = {};
+    Object.entries(acc).forEach(([id, v]) => { out[id] = { avg: v.sum / v.count, count: v.count }; });
+    setReviewStats(out);
+  }, []);
 
   const fetchAll = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -114,6 +137,7 @@ export function usePortfolioData() {
 
   useEffect(() => {
     fetchAll();
+    fetchReviewStats();
 
     if (!isSupabaseConfigured) return;
 
@@ -123,12 +147,13 @@ export function usePortfolioData() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, fetchAll)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, fetchAll)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'skills' }, fetchAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'project_reviews' }, fetchReviewStats)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchAll]);
+  }, [fetchAll, fetchReviewStats]);
 
-  return { settings, projects, skills, loading, error, refetch: fetchAll };
+  return { settings, projects, skills, reviewStats, loading, error, refetch: fetchAll, refetchReviewStats: fetchReviewStats };
 }

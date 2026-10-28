@@ -15,13 +15,13 @@ const inp = {
   width: '100%', padding: '0.7rem 0.9rem', background: C.bg,
   border: `1px solid ${C.border}`, borderRadius: '6px', color: C.text,
   fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box',
-  fontFamily: "'DM Sans', sans-serif",
+  fontFamily: "'Instrument Sans', sans-serif",
 };
 
 const btn = {
   padding: '0.65rem 1.4rem', borderRadius: '6px', cursor: 'pointer',
   fontWeight: 600, fontSize: '0.82rem', letterSpacing: '0.04em',
-  border: 'none', fontFamily: "'DM Sans', sans-serif",
+  border: 'none', fontFamily: "'Instrument Sans', sans-serif",
 };
 
 const label = {
@@ -268,6 +268,7 @@ function SettingsForm() {
         <Field form={form} setForm={setForm} label="Display Name" field="display_name" />
         <Field form={form} setForm={setForm} label="Location" field="location" />
         <Field form={form} setForm={setForm} label="Email" field="email" type="email" />
+        <Field form={form} setForm={setForm} label="Phone" field="phone" />
         <Field form={form} setForm={setForm} label="LinkedIn URL" field="linkedin" />
         <Field form={form} setForm={setForm} label="GitHub URL" field="github" />
         <Field form={form} setForm={setForm} label="Years Experience" field="years_exp" />
@@ -275,6 +276,7 @@ function SettingsForm() {
       </div>
 
       <Field form={form} setForm={setForm} label="Available for work (shown on homepage badge)" field="available" type="checkbox" />
+      <Field form={form} setForm={setForm} label="Publish project reviews immediately (otherwise they wait in the Reviews tab for your approval)" field="reviews_auto_approve" type="checkbox" />
 
       <p style={{ color: C.accent, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 1rem' }}>Home Bio</p>
       <Field form={form} setForm={setForm} label="Home Bio (EN)" field="home_desc_en" multiline />
@@ -306,7 +308,16 @@ const blankProject = {
   long_description: '', long_description_fr: '',
   technologies: '', category: 'web', github: '', live_url: '', video_url: '',
   index_label: '', sort_order: 99, thumbnail: '', images: [],
+  purpose: 'personal', purpose_detail: '', project_year: '',
 };
+
+const PURPOSE_OPTIONS = [
+  { id: 'client', label: 'Client project', detail: 'Client name (optional)' },
+  { id: 'education', label: 'Academic / learning', detail: 'School, course or bootcamp (optional)' },
+  { id: 'personal', label: 'Personal project', detail: 'Context (optional)' },
+  { id: 'open_source', label: 'Open source', detail: 'Context (optional)' },
+  { id: 'other', label: 'Other', detail: 'Describe the purpose' },
+];
 
 function ProjectForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial
@@ -359,6 +370,20 @@ function ProjectForm({ initial, onSave, onCancel }) {
         <Field form={form} setForm={setForm} label="Live URL" field="live_url" />
         <Field form={form} setForm={setForm} label="Index label (e.g. 01)" field="index_label" />
         <Field form={form} setForm={setForm} label="Sort Order (number)" field="sort_order" />
+      </div>
+
+      <p style={{ color: C.accent, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0.5rem 0 1rem' }}>Purpose — who was this built for?</p>
+      <div style={{ display: 'grid', gap: '0 1.5rem' }} className="grid md:grid-cols-3">
+        <div style={{ marginBottom: '1.1rem' }}>
+          <label style={label}>Purpose</label>
+          <select value={form.purpose ?? 'personal'} onChange={(e) => setForm((f) => ({ ...f, purpose: e.target.value }))} style={inp}>
+            {PURPOSE_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+          </select>
+        </div>
+        <Field form={form} setForm={setForm}
+          label={(PURPOSE_OPTIONS.find((o) => o.id === (form.purpose ?? 'personal')) ?? PURPOSE_OPTIONS[2]).detail}
+          field="purpose_detail" />
+        <Field form={form} setForm={setForm} label="Year (e.g. 2025)" field="project_year" />
       </div>
 
       <ImageUploader value={form.thumbnail} onChange={(v) => setForm((f) => ({ ...f, thumbnail: v }))} pathPrefix="projects" label="Card Thumbnail" />
@@ -448,12 +473,12 @@ function ProjectsManager() {
                 {p.thumbnail && <img src={p.thumbnail} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }} />}
                 <div>
                   <p style={{ color: C.text, fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>{p.title}</p>
-                  <p style={{ color: C.textMuted, fontSize: '0.75rem', margin: '0.2rem 0 0' }}>{p.category} · order: {p.sort_order}</p>
+                  <p style={{ color: C.textMuted, fontSize: '0.75rem', margin: '0.2rem 0 0' }}>{p.category} · {(PURPOSE_OPTIONS.find((o) => o.id === p.purpose) ?? {}).label ?? 'no purpose set'}{p.purpose_detail ? ` (${p.purpose_detail})` : ''} · order: {p.sort_order}</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button onClick={() => { setEditing(p); setShowForm(false); }} style={{ ...btn, background: C.accentDim, border: `1px solid ${C.borderAcc}`, color: C.accent, padding: '0.5rem 1rem' }}>Edit</button>
-                <button onClick={() => handleDelete(p.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(239,68,68,0.3)`, color: C.danger, padding: '0.5rem 1rem' }}>Delete</button>
+                <button onClick={() => handleDelete(p.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(178,69,60,0.3)`, color: C.danger, padding: '0.5rem 1rem' }}>Delete</button>
               </div>
             </div>
           ))}
@@ -586,7 +611,7 @@ function SkillsManager() {
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button onClick={() => { setEditing(g); setShowForm(false); }} style={{ ...btn, background: C.accentDim, border: `1px solid ${C.borderAcc}`, color: C.accent, padding: '0.5rem 1rem' }}>Edit</button>
-                <button onClick={() => handleDelete(g.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(239,68,68,0.3)`, color: C.danger, padding: '0.5rem 1rem' }}>Delete</button>
+                <button onClick={() => handleDelete(g.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(178,69,60,0.3)`, color: C.danger, padding: '0.5rem 1rem' }}>Delete</button>
               </div>
             </div>
           ))}
@@ -643,13 +668,102 @@ function MessagesInbox() {
               <button onClick={() => markRead(m.id, !m.is_read)} style={{ ...btn, background: C.accentDim, border: `1px solid ${C.borderAcc}`, color: C.accent, padding: '0.4rem 0.8rem', fontSize: '0.72rem' }}>
                 {m.is_read ? 'Mark unread' : 'Mark read'}
               </button>
-              <button onClick={() => remove(m.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(239,68,68,0.3)`, color: C.danger, padding: '0.4rem 0.8rem', fontSize: '0.72rem' }}>Delete</button>
+              <button onClick={() => remove(m.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(178,69,60,0.3)`, color: C.danger, padding: '0.4rem 0.8rem', fontSize: '0.72rem' }}>Delete</button>
             </div>
           </div>
           {m.subject && <p style={{ color: C.accent, fontSize: '0.8rem', fontWeight: 600, margin: '0 0 0.35rem' }}>{m.subject}</p>}
           <p style={{ color: C.textSub, fontSize: '0.85rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>{m.message}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// REVIEWS TAB — moderate visitor star ratings & comments
+// ============================================================================
+function StarsText({ n }) {
+  return <span style={{ color: C.star, letterSpacing: '1px' }}>{'★'.repeat(n)}<span style={{ color: C.track }}>{'★'.repeat(5 - n)}</span></span>;
+}
+
+function ReviewsManager() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('pending');
+  const [toast, setToast] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('project_reviews')
+      .select('*, projects(title)')
+      .order('created_at', { ascending: false });
+    if (error) setToast('Load failed: ' + error.message + ' — did you run migration_4_purpose_reviews.sql?');
+    setReviews(data ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const setApproved = async (id, approved) => {
+    const { error } = await supabase.from('project_reviews').update({ approved }).eq('id', id);
+    if (error) setToast('Update failed: ' + error.message);
+    else { setToast(approved ? '✓ Review published.' : '✓ Review hidden.'); load(); }
+  };
+  const remove = async (id) => {
+    if (!window.confirm('Delete this review permanently?')) return;
+    const { error } = await supabase.from('project_reviews').delete().eq('id', id);
+    if (error) setToast('Delete failed: ' + error.message);
+    else { setToast('✓ Review deleted.'); load(); }
+  };
+
+  const pendingCount = reviews.filter((r) => !r.approved).length;
+  const shown = reviews.filter((r) => filter === 'all' || (filter === 'pending' ? !r.approved : r.approved));
+
+  return (
+    <div>
+      <Toast text={toast} kind={toast.startsWith('✓') ? 'success' : 'error'} />
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        {[
+          { id: 'pending', label: `Pending (${pendingCount})` },
+          { id: 'approved', label: 'Published' },
+          { id: 'all', label: 'All' },
+        ].map((f) => (
+          <button key={f.id} onClick={() => setFilter(f.id)} style={{ ...btn, padding: '0.45rem 0.9rem', background: filter === f.id ? C.accentDim : 'transparent', border: `1px solid ${filter === f.id ? C.borderAcc : C.border}`, color: filter === f.id ? C.accent : C.textMuted }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <p style={{ color: C.textMuted, fontSize: '0.85rem' }}>Loading…</p>
+      ) : shown.length === 0 ? (
+        <p style={{ color: C.textMuted, fontSize: '0.85rem' }}>{filter === 'pending' ? 'Nothing waiting for approval.' : 'No reviews here yet.'}</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {shown.map((r) => (
+            <div key={r.id} style={{ padding: '1rem 1.25rem', background: C.bg, borderRadius: '6px', border: `1px solid ${r.approved ? C.border : C.borderAcc}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div>
+                  <p style={{ color: C.text, fontWeight: 600, fontSize: '0.88rem', margin: 0 }}>
+                    {r.name} <StarsText n={r.rating} />
+                  </p>
+                  <p style={{ color: C.textMuted, fontSize: '0.72rem', margin: '0.2rem 0 0' }}>
+                    on <strong>{r.projects?.title ?? r.project_id}</strong> · {new Date(r.created_at).toLocaleString()} · {r.approved ? 'published' : 'pending'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button onClick={() => setApproved(r.id, !r.approved)} style={{ ...btn, background: r.approved ? 'transparent' : C.accent, border: `1px solid ${r.approved ? C.border : C.accent}`, color: r.approved ? C.textMuted : C.onAccent, padding: '0.4rem 0.8rem', fontSize: '0.72rem' }}>
+                    {r.approved ? 'Hide' : 'Approve'}
+                  </button>
+                  <button onClick={() => remove(r.id)} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(178,69,60,0.3)`, color: C.danger, padding: '0.4rem 0.8rem', fontSize: '0.72rem' }}>Delete</button>
+                </div>
+              </div>
+              {r.comment && <p style={{ color: C.textSub, fontSize: '0.85rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>{r.comment}</p>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -699,6 +813,7 @@ function Dashboard() {
       totalViews, todayViews, recentViews,
       totalMessages, unreadMessages,
       totalProjects, totalSkills,
+      pendingReviews, totalReviews,
     ] = await Promise.all([
       supabase.from('page_views').select('*', { count: 'exact', head: true }),
       supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', startOfToday.toISOString()),
@@ -707,6 +822,8 @@ function Dashboard() {
       supabase.from('messages').select('*', { count: 'exact', head: true }).eq('is_read', false),
       supabase.from('projects').select('*', { count: 'exact', head: true }),
       supabase.from('skills').select('*', { count: 'exact', head: true }),
+      supabase.from('project_reviews').select('*', { count: 'exact', head: true }).eq('approved', false),
+      supabase.from('project_reviews').select('*', { count: 'exact', head: true }),
     ]);
 
     // Bucket the last 14 days of visits by calendar day for the mini chart
@@ -730,6 +847,8 @@ function Dashboard() {
       unreadMessages: unreadMessages.count ?? 0,
       totalProjects: totalProjects.count ?? 0,
       totalSkills: totalSkills.count ?? 0,
+      totalReviews: totalReviews.count ?? 0,
+      pendingReviews: pendingReviews.count ?? 0,
     });
     setLoading(false);
   }, []);
@@ -746,6 +865,7 @@ function Dashboard() {
         <StatCard label="Messages" value={stats.totalMessages} sub={stats.unreadMessages > 0 ? `${stats.unreadMessages} unread` : 'all read'} />
         <StatCard label="Projects" value={stats.totalProjects} />
         <StatCard label="Skill Categories" value={stats.totalSkills} />
+        <StatCard label="Reviews" value={stats.totalReviews} sub={stats.pendingReviews > 0 ? `${stats.pendingReviews} awaiting approval` : 'none pending'} />
       </div>
 
       <div style={{ padding: '1.4rem 1.5rem', background: C.bg, border: `1px solid ${C.border}`, borderRadius: '8px' }}>
@@ -843,6 +963,7 @@ function AdminPage() {
     { id: 'settings', label: 'Settings' },
     { id: 'projects', label: 'Projects' },
     { id: 'skills', label: 'Skills' },
+    { id: 'reviews', label: 'Reviews' },
     { id: 'messages', label: 'Messages' },
   ];
 
@@ -861,7 +982,7 @@ function AdminPage() {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <a href="/" style={{ ...btn, background: 'transparent', border: `1px solid ${C.border}`, color: C.textMuted, textDecoration: 'none', display: 'inline-block' }}>View Site</a>
-            <button onClick={() => supabase.auth.signOut()} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(239,68,68,0.3)`, color: C.danger }}>Sign Out</button>
+            <button onClick={() => supabase.auth.signOut()} style={{ ...btn, background: C.dangerDim, border: `1px solid rgba(178,69,60,0.3)`, color: C.danger }}>Sign Out</button>
           </div>
         </div>
 
@@ -891,6 +1012,11 @@ function AdminPage() {
         {tab === 'skills' && (
           <Section title="Skills — Categories & Tools">
             <SkillsManager />
+          </Section>
+        )}
+        {tab === 'reviews' && (
+          <Section title="Project Reviews — Approve, Hide, Delete">
+            <ReviewsManager />
           </Section>
         )}
         {tab === 'messages' && (
